@@ -128,7 +128,7 @@ main {
   padding: 1.2rem;
   gap: 1rem;
   border-radius: 1rem;
-  background-color: var(--player-bg-color);
+  background-color: var(--light-gray);
 }
 
 .img-container {
