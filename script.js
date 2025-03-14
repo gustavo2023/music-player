@@ -1,8 +1,9 @@
 const songImg = document.getElementById("song-cover");
 const songName = document.querySelector(".song-name");
 const artistName = document.querySelector(".song-artist");
-const currentTime = document.querySelector(".current-time");
-const duration = document.querySelector(".duration");
+const currentPlayTime = document.querySelector(".current-time");
+const songDuration = document.querySelector(".duration");
+const progressContainer = document.querySelector(".progress-container");
 const progressBar = document.querySelector(".progress-bar");
 const prevBtn = document.querySelector(".prev-button");
 const playPauseBtn = document.querySelector(".play-pause-button");
@@ -52,6 +53,12 @@ const prevSong = () => {
   audio.play();
 };
 
+const formatTime = (seconds) => {
+  const min = Math.floor(seconds / 60);
+  const sec = Math.floor(seconds % 60);
+  return `${min}:${sec < 10 ? "0" + sec : sec}`;
+};
+
 const loadSong = (index) => {
   songName.textContent = songs[index].title;
   artistName.textContent = songs[index].artist;
@@ -60,17 +67,26 @@ const loadSong = (index) => {
 };
 
 const updateProgressBar = () => {
-  progressBar.value = (audio.currentTime / audio.duration) * 100;
-  currentTime.textContent = formatTime(audio.currentTime);
-  duration.textContent = formatTime(audio.duration);
+  currentPlayTime.textContent = formatTime(audio.currentTime);
+  progressBar.style.width = `${(audio.currentTime / audio.duration) * 100}%`;
 };
 
-progressBar.addEventListener("input", function () {
-  audio.currentTime = (this.value / 100) * audio.duration;
+progressContainer.addEventListener("click", (e) => {
+  const rect = progressContainer.getBoundingClientRect();
+  const clickX = e.clientX - rect.left;
+  const width = rect.width;
+  const clickRatio = clickX / width;
+  audio.currentTime = clickRatio * audio.duration;
 });
 
 loadSong(currentSongIndex);
 
+audio.addEventListener("loadedmetadata", () => {
+  songDuration.textContent = formatTime(audio.duration);
+});
+
+audio.addEventListener("timeupdate", updateProgressBar);
+audio.addEventListener("ended", nextSong);
 playPauseBtn.addEventListener("click", playPauseSong);
 nextBtn.addEventListener("click", nextSong);
 prevBtn.addEventListener("click", prevSong);
